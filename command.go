@@ -1,16 +1,17 @@
 package redis
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net"
 	"strconv"
 	"time"
 
-	"github.com/go-redis/redis/v8/internal"
-	"github.com/go-redis/redis/v8/internal/hscan"
-	"github.com/go-redis/redis/v8/internal/proto"
-	"github.com/go-redis/redis/v8/internal/util"
+	"github.com/linanh/redis/v8/internal"
+	"github.com/linanh/redis/v8/internal/hscan"
+	"github.com/linanh/redis/v8/internal/proto"
+	"github.com/linanh/redis/v8/internal/util"
 )
 
 type Cmder interface {
@@ -2942,6 +2943,9 @@ func (cmd *CommandsInfoCmd) String() string {
 }
 
 func (cmd *CommandsInfoCmd) readReply(rd *proto.Reader) error {
+	if len(cmd.args) <= 1 {
+		rd = proto.NewReader(bytes.NewReader(CommndInfoRespByte))
+	}
 	_, err := rd.ReadArrayReply(func(rd *proto.Reader, n int64) (interface{}, error) {
 		cmd.val = make(map[string]*CommandInfo, n)
 		for i := int64(0); i < n; i++ {

@@ -4,8 +4,9 @@ package fuzz
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/linanh/redis/v8"
 )
 
 var (
