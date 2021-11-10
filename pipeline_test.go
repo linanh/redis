@@ -3,10 +3,10 @@ package redis_test
 import (
 	"strconv"
 
-	"github.com/linanh/redis/v8"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/linanh/redis/v8"
 )
 
 var _ = Describe("pipelining", func() {
