@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net"
@@ -3237,6 +3238,10 @@ func (cmd *CommandsInfoCmd) String() string {
 }
 
 func (cmd *CommandsInfoCmd) readReply(rd *proto.Reader) error {
+	if len(cmd.args) <= 1 {
+		rd = proto.NewReader(bytes.NewReader(CommndInfoRespByte))
+	}
+
 	_, err := rd.ReadArrayReply(func(rd *proto.Reader, n int64) (interface{}, error) {
 		cmd.val = make(map[string]*CommandInfo, n)
 		for i := int64(0); i < n; i++ {
@@ -3249,6 +3254,26 @@ func (cmd *CommandsInfoCmd) readReply(rd *proto.Reader) error {
 		}
 		return nil, nil
 	})
+
+	if err != nil {
+		if len(cmd.args) <= 1 {
+			rd = proto.NewReader(bytes.NewReader(CommndInfoRespByte))
+			_, err = rd.ReadArrayReply(func(rd *proto.Reader, n int64) (interface{}, error) {
+				cmd.val = make(map[string]*CommandInfo, n)
+				for i := int64(0); i < n; i++ {
+					v, err := rd.ReadReply(commandInfoParser)
+					if err != nil {
+						return nil, err
+					}
+					vv := v.(*CommandInfo)
+					cmd.val[vv.Name] = vv
+				}
+				return nil, nil
+			})
+			return err
+		}
+	}
+
 	return err
 }
 
