@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis/v8/internal/rand"
 )
 
-const slotNumber = 16384
+const slotNumber = 16383
 
 // CRC16 implementation according to CCITT standards.
 // Copyright 2001-2010 Georges Menie (www.menie.org)
@@ -65,6 +65,12 @@ func RandomSlot() int {
 func Slot(key string) int {
 	if key == "" {
 		return RandomSlot()
+	}
+	//for special key
+	if len(key) > 2 {
+		if strings.EqualFold(key[0:2], "a:") {
+			return 16383
+		}
 	}
 	key = Key(key)
 	return int(crc16sum(key)) % slotNumber
